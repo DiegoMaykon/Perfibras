@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenv
+venv/
+env/
+ENV/
+
+# PyQt Designer UI compilados
+*.pyc
+*.pyo
+
+# Configurações de IDE
+.vscode/
+*.code-workspace
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Banco de dados / dados temporários
+*.db
+*.sqlite
+*.sqlite3
+*.json  # Se quiser manter os JSONs de dados, remova esta linha
+
+# Arquivos de log
+*.log
+
+# Compilados / executáveis
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
