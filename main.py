@@ -4,7 +4,7 @@ import shutil
 import json
 from datetime import datetime
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QVBoxLayout, QDesktopWidget, QWidget,
+    QApplication,QGridLayout,QMainWindow, QPushButton, QVBoxLayout, QDesktopWidget, QWidget,
     QHBoxLayout, QFileDialog, QMessageBox, QLabel)
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, QTimer
@@ -50,102 +50,108 @@ MAX_BACKUPS = 1
 
 
 # ==============================
-# 🔹 Classe Principal
+# 🔹 Classe Principal com Layout de Cards
 # ==============================
 class TelaPrincipal(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Sistema de Pedidos AL Metais - Nelson Rosa - V1.0")
-
-        # 🔹 Caminho da imagem corrigido usando a função resource_path
-        self.caminho_fundo = resource_path("logopreta2.png")
+        self.setWindowTitle("Sistema de Pedidos Perfibras - Nelson Rosa - V1.0")
+        
+        # Estilo Global (Fundo e Cards)
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #1e1e2f; /* Fundo escuro moderno */
+            }
+            QPushButton {
+                background-color: #2d2d44;
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+                border-radius: 20px;
+                border: 2px solid #3d3d5c;
+                min-width: 250px;
+                min-height: 180px; /* Tamanho do Card */
+            }
+            QPushButton:hover {
+                background-color: #3d3d5c;
+                border: 2px solid #ff9d00; /* Cor de destaque ao passar o mouse */
+                margin-top: -5px; /* Efeito de elevação */
+            }
+            QPushButton#btn_sair {
+                background-color: #442d2d;
+                border: 2px solid #5c3d3d;
+            }
+            QPushButton#btn_sair:hover {
+                background-color: #ff4444;
+            }
+            QLabel#titulo {
+                color: white;
+                font-size: 32px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+        """)
 
         self.inicializar_ui()
-        self.inicializar_backup_automatico()  # Ativa backup automático diário
+        self.inicializar_backup_automatico()
         self.ajustar_resolucao()
 
-    # ==============================
-    # Ajuste de resolução
-    # ==============================
     def ajustar_resolucao(self):
-        """Ajusta a janela conforme a resolução da tela e inicia em modo tela cheia"""
         tela = QDesktopWidget().screenGeometry()
-        largura = tela.width()
-        altura = tela.height()
-        self.setGeometry(0, 0, largura, altura)
+        self.setGeometry(0, 0, tela.width(), tela.height())
 
-    # ==============================
-    # Interface
-    # ==============================
     def inicializar_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        self.layout_principal = QHBoxLayout()
-        central_widget.setLayout(self.layout_principal)
+        
+        # Layout principal vertical
+        layout_v = QVBoxLayout()
+        central_widget.setLayout(layout_v)
 
-        # ===== Fundo da tela =====
-        self.label_fundo = QLabel(central_widget)
-        self.label_fundo.setScaledContents(True)
-        self.label_fundo.lower()  # Mantém o fundo atrás dos botões
+        # Título do Sistema
+        lbl_titulo = QLabel("GESTÃO DE PEDIDOS NELSON ROSA - PERFIBRAS")
+        lbl_titulo.setObjectName("titulo")
+        lbl_titulo.setAlignment(Qt.AlignCenter)
+        layout_v.addWidget(lbl_titulo)
 
-        if os.path.exists(self.caminho_fundo):
-            self.pixmap_original = QPixmap(self.caminho_fundo)
-            self.atualizar_fundo()
-        else:
-            print(f"⚠️ Imagem de fundo não encontrada: {self.caminho_fundo}")
+        # Grade de Cards (2 colunas)
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(30) # Espaço entre os cards
 
-        # ===== Estilo dos botões =====
-        estilo_botoes = """
-            QPushButton {
-                background-color: rgba(0, 0, 0, 100); 
-                color: white;
-                font-size: 16px;
-                font-weight: bold;
-                border-radius: 10px;
-                padding: 10px 20px;
-            }
-            QPushButton:hover {
-                background-color: rgba(50, 50, 50, 180);
-            }
-        """
+        # Criar os botões (Cards)
+        self.btn_clientes = QPushButton("👤\n\nCLIENTES")
+        self.btn_acessorios = QPushButton("📦\n\nITENS / ESTOQUE")
+        self.btn_pedidos = QPushButton("📝\n\nNOVO PEDIDO")
+        self.btn_backup = QPushButton("💾\n\nGERAR BACKUP")
+        self.btn_restaurar = QPushButton("🔄\n\nRESTAURAR DADOS")
+        self.btn_sair = QPushButton("🚪\n\nSAIR")
+        self.btn_sair.setObjectName("btn_sair")
 
-        # ===== Botões principais =====
-        btn_clientes = QPushButton("Clientes")
-        btn_acessorios = QPushButton("Itens")
-        btn_pedidos = QPushButton("Pedidos")
-        btn_backup = QPushButton("Backup")
-        btn_restaurar = QPushButton("Restaurar Backup")
-        btn_sair = QPushButton("Sair")
+        # Adicionar à grade (linha, coluna)
+        grid_layout.addWidget(self.btn_clientes, 0, 0)
+        grid_layout.addWidget(self.btn_acessorios, 0, 1)
+        grid_layout.addWidget(self.btn_pedidos, 1, 0)
+        grid_layout.addWidget(self.btn_backup, 1, 1)
+        grid_layout.addWidget(self.btn_restaurar, 2, 0)
+        grid_layout.addWidget(self.btn_sair, 2, 1)
 
-        for btn in [btn_clientes, btn_acessorios, btn_pedidos, btn_backup, btn_restaurar, btn_sair]:
-            btn.setStyleSheet(estilo_botoes)
+        # Centralizar a grade na tela
+        container_grid = QHBoxLayout()
+        container_grid.addStretch()
+        container_grid.addLayout(grid_layout)
+        container_grid.addStretch()
 
-        # ===== Layout de botões =====
-        layout_botoes = QVBoxLayout()
-        layout_botoes.addStretch()
-        layout_botoes.addWidget(btn_clientes)
-        layout_botoes.addSpacing(10)
-        layout_botoes.addWidget(btn_acessorios)
-        layout_botoes.addSpacing(10)
-        layout_botoes.addWidget(btn_pedidos)
-        layout_botoes.addSpacing(10)
-        layout_botoes.addWidget(btn_backup)
-        layout_botoes.addSpacing(10)
-        layout_botoes.addWidget(btn_restaurar)
-        layout_botoes.addSpacing(10)
-        layout_botoes.addWidget(btn_sair)
-        layout_botoes.addStretch()
+        layout_v.addStretch()
+        layout_v.addLayout(container_grid)
+        layout_v.addStretch()
 
-        self.layout_principal.addStretch()
-        self.layout_principal.addLayout(layout_botoes)
-
-        # ===== Conectar botões =====
-        btn_clientes.clicked.connect(self.abrir_clientes)
-        btn_acessorios.clicked.connect(self.abrir_acessorios)
-        btn_pedidos.clicked.connect(self.abrir_pedidos)
-        btn_backup.clicked.connect(self.fazer_backup)
-        btn_restaurar.clicked.connect(self.restaurar_backup)
-        btn_sair.clicked.connect(self.close)
+        # Conectar botões
+        self.btn_clientes.clicked.connect(self.abrir_clientes)
+        self.btn_acessorios.clicked.connect(self.abrir_acessorios)
+        self.btn_pedidos.clicked.connect(self.abrir_pedidos)
+        self.btn_backup.clicked.connect(self.fazer_backup)
+        self.btn_restaurar.clicked.connect(self.restaurar_backup)
+        self.btn_sair.clicked.connect(self.close)
 
     # ==============================
     # Fundo dinâmico
